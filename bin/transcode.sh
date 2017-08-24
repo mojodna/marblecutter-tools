@@ -52,7 +52,7 @@ overview_opts=""
 bands=""
 intermediate=$(mktemp --suffix ".tif")
 
-# update info now that rasterio has read it
+# update input path for GDAL now that rasterio has read it
 if [[ $input =~ "http://" ]] || [[ $input =~ "https://" ]]; then
   input="/vsicurl/$input"
 elif [[ $input =~ "s3://" ]]; then

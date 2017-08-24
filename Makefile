@@ -8,21 +8,7 @@ tmp := $(shell mktemp -u)
 default: tools
 
 tools:
-	docker build --build-arg http_proxy=$(http_proxy) -t quay.io/mojodna/mapzen-dynamic-tiler-batch .
-
-server: tools
-	docker build --build-arg http_proxy=$(http_proxy) -t quay.io/mojodna/mapzen-dynamic-tiler-server -f server/Dockerfile .
-
-depfinder:
-	docker build --build-arg http_proxy=$(http_proxy) -t marblecutter-depfinder -f aws/Dockerfile .
-
-deploy: project.json
-	apex deploy -l debug -E environment.json
-
-install: project.json
-
-project.json: project.json.hbs .env node_modules/.bin/interp
-	interp < $< > $@
+	docker build --build-arg http_proxy=$(http_proxy) -t quay.io/mojodna/marblecutter-tools .
 
 node_modules/.bin/interp:
 	npm install
@@ -51,9 +37,3 @@ submit-job: node_modules/.bin/interp
 	interp < $(job) > $(tmp)
 	aws batch submit-job --cli-input-json file://$(tmp)
 	rm -f $(tmp)
-
-deps/deps.tgz: deps/Dockerfile deps/required.txt
-	docker run --rm --entrypoint tar $$(docker build --build-arg http_proxy=$(http_proxy) -q -f $< .) zc -C /var/task . > $@
-
-clean:
-	rm -f deps/deps.tgz

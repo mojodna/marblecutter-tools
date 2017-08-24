@@ -6,11 +6,12 @@ from __future__ import print_function
 import json
 import sys
 
-import arrow
 import click
 import rasterio
-from get_zoom import get_resolution, get_zoom, get_zoom_offset
 from rasterio.warp import transform_bounds
+
+import arrow
+from get_zoom import get_resolution, get_zoom, get_zoom_offset
 
 
 @click.command(context_settings={

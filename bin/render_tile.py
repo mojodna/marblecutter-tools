@@ -1,15 +1,15 @@
-# noqa
 # coding=utf-8
 from __future__ import print_function
 
 import logging
 
 import click
+from mercantile import Tile
+
 from marblecutter import tiling
 from marblecutter.catalogs import PostGISCatalog
 from marblecutter.formats import PNG, ColorRamp, GeoTIFF
 from marblecutter.transformations import Hillshade, Normal, Terrarium
-from mercantile import Tile
 
 logging.basicConfig(level=logging.WARNING)
 

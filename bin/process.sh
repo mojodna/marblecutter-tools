@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
 # capture arguments (we'll pass them to oin-meta-generator)
-args=("${@:1:$[$#-2]}")
-args=${args:-""}
-shift $[$#-2]
+if [[ $# -ge 2 ]]; then
+  args=("${@:1:$[$#-2]}")
+  args=${args:-""}
+  shift $[$#-2]
+fi
 
 input=$1
 output=$2

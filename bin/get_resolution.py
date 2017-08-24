@@ -3,14 +3,16 @@
 
 from __future__ import print_function
 
+import os
 import sys
 
 from get_zoom import get_resolution
 
-
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        print("usage: {} <input>".format(os.path.basename(sys.argv[0])), file=sys.stderr)
+        print(
+            "usage: {} <input>".format(os.path.basename(sys.argv[0])),
+            file=sys.stderr)
         exit(1)
 
     input = sys.argv[1]
