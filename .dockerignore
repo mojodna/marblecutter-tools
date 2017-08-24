@@ -1,0 +1,4 @@
+*.tif
+*.TIF
+.git
+tmp
