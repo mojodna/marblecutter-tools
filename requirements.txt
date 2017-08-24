@@ -1,3 +1,4 @@
 awscli
+haversine
 # rasterio[s3] >= 1.0a10 --no-binary rasterio
 https://github.com/mapbox/rasterio/archive/master.tar.gz#egg=rasterio[s3]

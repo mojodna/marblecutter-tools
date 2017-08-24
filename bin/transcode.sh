@@ -37,7 +37,7 @@ elif [[ "$input" =~ \.tar\.gz$ ]]; then
   input="tar://${input}!${inner_source}"
 fi
 
-echo "Transcoding ${input}"
+>&2 echo "Transcoding ${input}..."
 
 info=$(rio info $input 2> /dev/null)
 count=$(jq .count <<< $info)
@@ -89,7 +89,7 @@ for b in $(seq 1 $count); do
   bands="$bands -b $b"
 done
 
->&2 echo "Transcoding bands..."
+>&2 echo "Transcoding ${count} bands..."
 timeout --foreground 1h gdal_translate \
   $bands \
   $mask \
