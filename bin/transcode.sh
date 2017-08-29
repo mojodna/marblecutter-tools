@@ -124,7 +124,6 @@ timeout --foreground 1h gdaladdo \
 >&2 echo "Creating cloud-optimized GeoTIFF..."
 timeout --foreground 1h gdal_translate \
   $bands \
-  $mask \
   -co TILED=yes \
   -co BLOCKXSIZE=512 \
   -co BLOCKYSIZE=512 \
