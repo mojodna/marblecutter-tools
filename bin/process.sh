@@ -5,6 +5,8 @@ output=$2
 # target size in KB
 THUMBNAIL_SIZE=${THUMBNAIL_SIZE:-300}
 TILER_BASE_URL=${TILER_BASE_URL:-http://tiles.openaerialmap.org}
+export AWS_S3_ENDPOINT_SCHEME=${AWS_S3_ENDPOINT_SCHEME:-https://}
+export AWS_S3_ENDPOINT=${AWS_S3_ENDPOINT:-s3.amazonaws.com}
 
 set -euo pipefail
 
@@ -21,7 +23,7 @@ function cleanup_on_failure() {
 
   set +e
   for x in ${s3_outputs[@]}; do
-    aws s3 rm $x 2> /dev/null
+    aws s3 rm --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $x 2> /dev/null
   done
   set -e
 
@@ -79,7 +81,7 @@ tiler_url=$(sed "s|s3://[^/]*|${TILER_BASE_URL}|" <<< $output)
 if [[ "$input" =~ ^s3:// ]] && \
    [[ "$input" =~ \.zip$ || "$input" =~ \.tar\.gz$ ]]; then
   >&2 echo "Downloading $input (archive) from S3..."
-  aws s3 cp $input $source
+  aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $input $source
   to_clean+=($source)
 elif [[ "$input" =~ s3\.amazonaws\.com ]] && \
      [[ "$input" =~ \.zip$ || "$input" =~ \.tar\.gz$ ]]; then
@@ -138,16 +140,16 @@ rio shapes --mask --as-mask --precision 6 ${small} | \
 
 if [[ "$output" =~ ^s3:// ]]; then
   >&2 echo "Uploading..."
-  aws s3 cp $intermediate ${output}.tif
+  aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $intermediate ${output}.tif
 
-  aws s3 cp $footprint ${output}.json
+  aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $footprint ${output}.json
 
-  aws s3 cp $thumb ${output}.png
+  aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $thumb ${output}.png
 
   if [ -f ${intermediate}.msk ]; then
     # 3. upload mask
     >&2 echo "Uploading mask..."
-    aws s3 cp ${intermediate}.msk ${output}.tif.msk
+    aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} ${intermediate}.msk ${output}.tif.msk
   fi
 else
   mv $intermediate ${output}.tif
