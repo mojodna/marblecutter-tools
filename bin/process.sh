@@ -65,45 +65,46 @@ function cleanup_on_failure() {
   fi
 }
 
-if [[ -z "$input" || -z "$output" ]]; then
-  # input is an HTTP-accessible GDAL-readable image
-  # output is an S3 URI w/o extensions
-  # e.g.:
-  #   bin/process.sh \
-  #   http://hotosm-oam.s3.amazonaws.com/uploads/2016-12-29/58655b07f91c99bd00e9c7ab/scene/0/scene-0-image-0-transparent_image_part2_mosaic_rgb.tif \
-  #   s3://oam-dynamic-tiler-tmp/sources/58655b07f91c99bd00e9c7ab/0/58655b07f91c99bd00e9c7a6
-  >&2 echo "usage: $(basename $0) <input> <output basename>"
-  exit 1
-fi
+function update_aws_credentials() {
+  set +u
 
-set +u
+  # attempt to load credentials from an IAM profile if none were provided
+  if [[ -z "$AWS_ACCESS_KEY_ID"  || -z "$AWS_SECRET_ACCESS_KEY" ]]; then
+    set +e
 
-# attempt to load credentials from an IAM profile if none were provided
-if [[ -z "$AWS_ACCESS_KEY_ID"  || -z "$AWS_SECRET_ACCESS_KEY" ]]; then
-  set +e
+    local role=$(curl -sf --connect-timeout 1 http://169.254.169.254/latest/meta-data/iam/security-credentials/)
+    local credentials=$(curl -sf --connect-timeout 1 http://169.254.169.254/latest/meta-data/iam/security-credentials/${role})
+    export AWS_ACCESS_KEY_ID=$(jq -r .AccessKeyId <<< $credentials)
+    export AWS_SECRET_ACCESS_KEY=$(jq -r .SecretAccessKey <<< $credentials)
+    export AWS_SESSION_TOKEN=$(jq -r .Token <<< $credentials)
 
-  role=$(curl -sf --connect-timeout 1 http://169.254.169.254/latest/meta-data/iam/security-credentials/)
-  credentials=$(curl -sf --connect-timeout 1 http://169.254.169.254/latest/meta-data/iam/security-credentials/${role})
-  export AWS_ACCESS_KEY_ID=$(jq -r .AccessKeyId <<< $credentials)
-  export AWS_SECRET_ACCESS_KEY=$(jq -r .SecretAccessKey <<< $credentials)
-  export AWS_SESSION_TOKEN=$(jq -r .Token <<< $credentials)
+    set -e
+  fi
 
   set -e
-fi
+}
 
-# mount an EFS volume if requested and use that as TMPDIR
-if [[ ! -z "$EFS_HOST" ]]; then
-  set +e
-  mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 ${EFS_HOST}:/ /efs
-  set -e
+function mount_efs() {
+  set +u
 
-  export CPL_TMPDIR=/efs
-  export TMPDIR=/efs
-fi
+  # mount an EFS volume if requested and use that as TMPDIR
+  if [[ ! -z "$EFS_HOST" ]]; then
+    set +e
+    mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 ${EFS_HOST}:/ /efs
+    set -e
 
-set -u
+    export CPL_TMPDIR=/efs
+    export TMPDIR=/efs
+  fi
+
+  set -u
+}
 
 check_args
+
+update_aws_credentials
+
+mount_efs
 
 # register signal handlers
 trap cleanup EXIT
