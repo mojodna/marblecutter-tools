@@ -96,7 +96,7 @@ elif [[ "$input" =~ s3\.amazonaws\.com ]] && \
   >&2 echo "Downloading $input (archive) from S3 over HTTP..."
   curl -sfL $input -o $source
   to_clean+=($source)
-elif [[ "$input" =~ ^https?:// ]]; then
+elif [[ "$input" =~ ^https?:// && ! "$input" =~ s3\.amazonaws\.com ]]; then
   >&2 echo "Downloading $input..."
   curl -sfL $input -o $source
   to_clean+=($source)
