@@ -9,24 +9,35 @@ export AWS_S3_ENDPOINT=${AWS_S3_ENDPOINT:-s3.amazonaws.com}
 
 set -euo pipefail
 
+failed=0
+cleaning=0
 to_clean=()
 
 function cleanup() {
-  for f in ${to_clean[@]}; do
-    rm -f "${f}"
-  done
+  # prevent double-cleanup
+  if [[ $cleaning -eq 0 ]]; then
+    cleaning=1
+    for f in ${to_clean[@]}; do
+      rm -f "${f}"
+    done
+  fi
 }
 
 function cleanup_on_failure() {
-  s3_outputs=(${output}.tif ${output}.tif.msk ${output}.json ${output}.png)
+  # prevent double-cleanup
+  if [[ $failed -eq 0 ]]; then
+    failed=1
 
-  set +e
-  for x in ${s3_outputs[@]}; do
-    aws s3 rm --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $x 2> /dev/null
-  done
-  set -e
+    local s3_outputs=(${output}.tif ${output}.tif.msk ${output}.json ${output}.png)
 
-  cleanup
+    set +e
+    for x in ${s3_outputs[@]}; do
+      aws s3 rm --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $x 2> /dev/null
+    done
+    set -e
+
+    cleanup
+  fi
 }
 
 if [[ -z "$input" || -z "$output" ]]; then
