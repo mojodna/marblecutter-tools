@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
+from __future__ import print_function
+
 import argparse
 import json
 import sys
@@ -7,8 +9,7 @@ import sys
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--argstr', nargs='*')
-    parser.add_argument('--argfloat', nargs='*')
+    parser.add_argument('--meta', nargs='*')
     args = parser.parse_args()
 
     incoming = json.load(sys.stdin)
@@ -22,15 +23,11 @@ def main():
         }
     }
 
-    if args.argstr:
-        for a in args.argstr:
+    if args.meta:
+        for a in args.meta:
             k, v = a.split('=', 1)
-            geojson['properties'][k] = v
-
-    if args.argfloat:
-        for a in args.argfloat:
-            k, v = a.split('=', 1)
-            geojson['properties'][k] = float(v)
+            if v:
+                geojson['properties'][k] = json.loads(v)
 
     assert incoming['type'] == 'FeatureCollection', \
         "Expecting a FeatureCollection GeoJSON object"

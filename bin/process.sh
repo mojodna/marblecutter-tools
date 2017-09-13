@@ -145,8 +145,25 @@ to_clean+=($footprint)
 
 small=${intermediate/.tif/_small.tif}
 to_clean+=($small)
+
 rio shapes --mask --as-mask --precision 6 ${small} | \
-  rio_shapes_to_multipolygon.py --argfloat resolution=${resolution} --argstr filename="$(basename $output).tif" > $footprint
+  build_metadata.py \
+    --meta \
+      url="\"${output}.tif\"" \
+      filename="\"$(basename $output).tif\"" \
+      dimensions=$(jq -c '.shape | reverse' <<< $info) \
+      bounds=$(jq -c .bounds <<< $info) \
+      bands=$(jq -c .count <<< $info) \
+      size=$(du -k "${intermediate}" | cut -f1) \
+      dtype=$(jq -c .dtype <<< $info) \
+      crs=$(jq -c .crs <<< $info) \
+      colorinterp=$(jq -c .colorinterp <<< $info) \
+      resolution=$(jq -c .res <<< $info) \
+      resolution_in_meters=${resolution} \
+      thumbnail_url="\"${output}.png\"" \
+    > $footprint
+
+meta=$(< $footprint)
 
 if [[ "$output" =~ ^s3:// ]]; then
   >&2 echo "Uploading..."
