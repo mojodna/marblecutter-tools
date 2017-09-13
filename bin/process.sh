@@ -20,7 +20,7 @@ to_clean=()
 function check_args() {
   if [[ -z "$input" || -z "$output" ]]; then
     # input is an HTTP-accessible GDAL-readable image
-    # output is an S3 URI w/o extensions
+    # output is an S3 URI or file prefix (i.e. w/o extensions)
     # e.g.:
     #   bin/process.sh \
     #   http://hotosm-oam.s3.amazonaws.com/uploads/2016-12-29/58655b07f91c99bd00e9c7ab/scene/0/scene-0-image-0-transparent_image_part2_mosaic_rgb.tif \
