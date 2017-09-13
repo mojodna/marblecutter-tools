@@ -13,6 +13,7 @@ RUN apt-get update \
     curl \
     git \
     jq \
+    nfs-common \
     python-pip \
     python-wheel \
     python-setuptools \
@@ -29,7 +30,8 @@ RUN pip install -r requirements.txt && \
 
 COPY bin/* /opt/marblecutter-tools/bin/
 
-RUN ln -s /opt/marblecutter-tools/bin/* /usr/local/bin/
+RUN ln -s /opt/marblecutter-tools/bin/* /usr/local/bin/ && \
+  mkdir -p /efs
 
 ENV CPL_VSIL_CURL_ALLOWED_EXTENSIONS .vrt,.tif,.tiff,.ovr,.msk,.jp2,.img,.hgt
 ENV GDAL_CACHEMAX 512
