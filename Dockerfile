@@ -4,21 +4,13 @@ MAINTAINER Seth Fitzsimmons <seth@mojodna.net>
 ARG http_proxy
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV PATH=/opt/marblecutter/bin:/opt/marblecutter/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-ENV CPL_VSIL_CURL_ALLOWED_EXTENSIONS .vrt,.tif,.tiff,.ovr,.msk,.jp2,.img,.hgt
-ENV GDAL_CACHEMAX 512
-ENV GDAL_DISABLE_READDIR_ON_OPEN TRUE
-ENV VSI_CACHE TRUE
-ENV VSI_CACHE_SIZE 536870912
 
 RUN apt-get update \
   && apt-get upgrade -y \
   && apt-get install -y --no-install-recommends \
     bc \
-    build-essential \
     ca-certificates \
     curl \
-    cython \
     git \
     jq \
     python-pip \
@@ -28,15 +20,19 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /opt/marblecutter
+WORKDIR /opt/marblecutter-tools
 
-COPY requirements.txt /opt/marblecutter/requirements.txt
-
-# RUN pip install -U numpy pip && \
-#   pip install -r requirements.txt && \
-#   rm -rf /root/.cache
+COPY requirements.txt /opt/marblecutter-tools/requirements.txt
 
 RUN pip install -r requirements.txt && \
   rm -rf /root/.cache
 
-COPY bin/* /opt/marblecutter/bin/
+COPY bin/* /opt/marblecutter-tools/bin/
+
+RUN ln -s /opt/marblecutter-tools/bin/* /usr/local/bin/
+
+ENV CPL_VSIL_CURL_ALLOWED_EXTENSIONS .vrt,.tif,.tiff,.ovr,.msk,.jp2,.img,.hgt
+ENV GDAL_CACHEMAX 512
+ENV GDAL_DISABLE_READDIR_ON_OPEN TRUE
+ENV VSI_CACHE TRUE
+ENV VSI_CACHE_SIZE 536870912
