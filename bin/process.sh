@@ -4,7 +4,6 @@ input=$1
 output=$2
 # target size in KB
 THUMBNAIL_SIZE=${THUMBNAIL_SIZE:-300}
-TILER_BASE_URL=${TILER_BASE_URL:-http://tiles.openaerialmap.org}
 export AWS_S3_ENDPOINT_SCHEME=${AWS_S3_ENDPOINT_SCHEME:-https://}
 export AWS_S3_ENDPOINT=${AWS_S3_ENDPOINT:-s3.amazonaws.com}
 
@@ -81,7 +80,6 @@ source="${base}.${filename}"
 intermediate=${base}-intermediate.tif
 to_clean+=($intermediate)
 gdal_output=$(sed 's|s3://\([^/]*\)/|/vsis3/\1/|' <<< $output)
-tiler_url=$(sed "s|s3://[^/]*|${TILER_BASE_URL}|" <<< $output)
 
 >&2 echo "Processing ${input} into ${output}.{json,tif,tif.msk}..."
 
