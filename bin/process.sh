@@ -124,7 +124,12 @@ target_pixel_area=$(bc -l <<< "$THUMBNAIL_SIZE * 1000 / 0.75")
 ratio=$(bc -l <<< "sqrt($target_pixel_area / ($width * $height))")
 target_width=$(printf "%.0f" $(bc -l <<< "$width * $ratio"))
 target_height=$(printf "%.0f" $(bc -l <<< "$height * $ratio"))
-gdal_translate -of png $intermediate $thumb -outsize $target_width $target_height
+gdal_translate \
+  -q \
+  -of png \
+  $intermediate \
+  $thumb \
+  -outsize $target_width $target_height
 
 # 5. create footprint
 >&2 echo "Generating footprint..."
@@ -132,8 +137,10 @@ info=$(rio info $intermediate)
 resolution=$(get_resolution.py $intermediate)
 
 # resample using 'average' so that rescaled pixels containing _some_ values
-# don't end up as NODATA
-gdalwarp -r average \
+# don't end up as NODATA (better than sampling with rio shapes for this reason)
+gdalwarp \
+  -q \
+  -r average \
   -ts $[$(jq -r .width <<< $info) / 100] $[$(jq -r .height <<< $info) / 100] \
   -srcnodata $(jq -r .nodata <<< $info) \
   $intermediate ${intermediate/.tif/_small.tif}

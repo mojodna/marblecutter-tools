@@ -91,6 +91,7 @@ done
 
 >&2 echo "Transcoding ${count} bands..."
 timeout --foreground 1h gdal_translate \
+  -q \
   $bands \
   $mask \
   -co TILED=yes \
@@ -111,6 +112,7 @@ done
 
 >&2 echo "Adding overviews..."
 timeout --foreground 1h gdaladdo \
+  -q \
   -r lanczos \
   --config GDAL_TIFF_OVR_BLOCKSIZE 512 \
   --config TILED_OVERVIEW yes \
@@ -123,6 +125,7 @@ timeout --foreground 1h gdaladdo \
 
 >&2 echo "Creating cloud-optimized GeoTIFF..."
 timeout --foreground 1h gdal_translate \
+  -q \
   $bands \
   -co TILED=yes \
   -co BLOCKXSIZE=512 \
@@ -137,6 +140,7 @@ timeout --foreground 1h gdal_translate \
 if [ "$mask" != "" ]; then
   >&2 echo "Adding overviews to mask..."
   timeout --foreground 1h gdaladdo \
+    -q \
     --config GDAL_TIFF_OVR_BLOCKSIZE 512 \
     --config TILED_OVERVIEW yes \
     --config COMPRESS_OVERVIEW DEFLATE \
@@ -149,6 +153,7 @@ if [ "$mask" != "" ]; then
 
   >&2 echo "Creating cloud-optimized GeoTIFF (mask)..."
   timeout --foreground 1h gdal_translate \
+    -q \
     -co TILED=yes \
     -co BLOCKXSIZE=512 \
     -co BLOCKYSIZE=512 \
