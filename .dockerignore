@@ -1,4 +1,5 @@
 *.tif
 *.TIF
 .git
+aws
 tmp
