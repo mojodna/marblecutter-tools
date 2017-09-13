@@ -90,6 +90,7 @@ for b in $(seq 1 $count); do
 done
 
 >&2 echo "Transcoding ${count} bands..."
+# TODO make timeout configurable
 timeout --foreground 1h gdal_translate \
   -q \
   $bands \
