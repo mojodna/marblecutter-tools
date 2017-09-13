@@ -2,6 +2,7 @@
 
 input=$1
 output=$2
+callback_url=$3
 
 # target thumbnail size in KB
 THUMBNAIL_SIZE=${THUMBNAIL_SIZE:-300}
@@ -16,6 +17,19 @@ failed=0
 cleaning=0
 to_clean=()
 
+function check_args() {
+  if [[ -z "$input" || -z "$output" ]]; then
+    # input is an HTTP-accessible GDAL-readable image
+    # output is an S3 URI w/o extensions
+    # e.g.:
+    #   bin/process.sh \
+    #   http://hotosm-oam.s3.amazonaws.com/uploads/2016-12-29/58655b07f91c99bd00e9c7ab/scene/0/scene-0-image-0-transparent_image_part2_mosaic_rgb.tif \
+    #   s3://oam-dynamic-tiler-tmp/sources/58655b07f91c99bd00e9c7ab/0/58655b07f91c99bd00e9c7a6
+    >&2 echo "usage: $(basename $0) <input> <output basename> [callback URL]"
+    exit 1
+  fi
+}
+
 function cleanup() {
   # prevent double-cleanup
   if [[ $cleaning -eq 0 ]]; then
@@ -26,10 +40,18 @@ function cleanup() {
   fi
 }
 
+function mark_failed() {
+  if [[ ! -z "$callback_url" ]]; then
+    >&2 echo "Failed. Telling ${callback_url}"
+  fi
+}
+
 function cleanup_on_failure() {
   # prevent double-cleanup
   if [[ $failed -eq 0 ]]; then
     failed=1
+    # mark as failed
+    mark_failed
 
     local s3_outputs=(${output}.tif ${output}.tif.msk ${output}.json ${output}.png)
 
@@ -81,6 +103,9 @@ fi
 
 set -u
 
+check_args
+
+# register signal handlers
 trap cleanup EXIT
 trap cleanup_on_failure INT
 trap cleanup_on_failure ERR
@@ -204,16 +229,11 @@ else
   mv ${intermediate}.msk ${output}.tif.msk
 fi
 
-# TODO call web hooks
-# 1. metadata
-#   a. resolution
-#   b. dimensions
-#   c. bounds
-#   d. band count
-#   e. file size
-#   f. band types
-#   g. footprint
-# 2. thumbnail
+# call web hooks
+if [[ ! -z "$callback_url" ]]; then
+  >&2 echo "Notifying ${callback_url}"
+  curl -sf -X POST -d @- -H "Content-Type: application/json" "${callback_url}" <<< $meta
+fi
 
 rm -f ${intermediate}*
 
