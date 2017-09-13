@@ -7,9 +7,7 @@ import math
 import os
 import sys
 
-import rasterio
-
-from haversine import haversine
+from get_resolution import get_resolution
 
 
 def get_zoom_offset(width, height, approximate_zoom):
@@ -17,23 +15,6 @@ def get_zoom_offset(width, height, approximate_zoom):
         x for x in range(approximate_zoom)
         if (height / (2**(x + 1))) >= 1 and (width / (2**(x + 1))) >= 1
     ])
-
-
-def get_resolution(input):
-    with rasterio.Env():
-        with rasterio.open(input) as src:
-            # grab the lowest resolution dimension
-            if src.crs.is_geographic:
-                left = (src.bounds[0], (src.bounds[1] + src.bounds[3]) / 2)
-                right = (src.bounds[2], (src.bounds[1] + src.bounds[3]) / 2)
-                top = ((src.bounds[0] + src.bounds[2]) / 2, src.bounds[3])
-                bottom = ((src.bounds[0] + src.bounds[2]) / 2, src.bounds[1])
-
-                return max(
-                    haversine(left, right) * 1000 / src.width,
-                    haversine(top, bottom) * 1000 / src.height)
-            return max((src.bounds.right - src.bounds.left) / src.width,
-                       (src.bounds.top - src.bounds.bottom) / src.height)
 
 
 def get_zoom(input):
