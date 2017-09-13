@@ -1,0 +1,6 @@
+version: '2'
+services:
+  tools:
+    build: .
+    volumes:
+      - ./bin:/opt/marblecutter-tools/bin
