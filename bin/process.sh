@@ -57,7 +57,7 @@ if [[ -z "$AWS_ACCESS_KEY_ID"  || -z "$AWS_SECRET_ACCESS_KEY" ]]; then
 fi
 
 # mount an EFS volume if requested and use that as TMPDIR
-if [[ -z "$EFS_HOST" ]]; then
+if [[ ! -z "$EFS_HOST" ]]; then
   set +e
   mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 ${EFS_HOST}:/ /efs
   set -e
