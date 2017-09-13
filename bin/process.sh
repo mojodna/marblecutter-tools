@@ -43,6 +43,11 @@ function cleanup() {
 function mark_failed() {
   if [[ ! -z "$callback_url" ]]; then
     >&2 echo "Failed. Telling ${callback_url}"
+    cat <<EOF | curl -sf -X POST -d @- -H "Content-Type: application/json" "${callback_url}"
+{
+  "status": "failed"
+}
+EOF
   fi
 }
 
