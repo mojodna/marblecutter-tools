@@ -257,7 +257,7 @@ fi
 # call web hooks
 if [[ ! -z "$callback_url" ]]; then
   >&2 echo "Notifying ${callback_url}"
-  curl -sf -X POST -d @- -H "Content-Type: application/json" "${callback_url}" <<< $meta
+  curl -s -X POST -d @- -H "Content-Type: application/json" "${callback_url}" <<< $meta
 fi
 
 rm -f ${intermediate}*
