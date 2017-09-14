@@ -2,8 +2,27 @@
 
 input=$1
 output=$2
+callback_url=$3
 
 set -euo pipefail
+
+function update_status() {
+  set +u
+
+  if [[ ! -z "$callback_url" ]]; then
+    local status=$1
+    local message=$2
+    cat <<EOF | curl -s -X POST -d @- -H "Content-Type: application/json" "${callback_url}"
+{
+  "status": "${status}",
+  "message": "${message}"
+}
+EOF
+  fi
+
+  set -u
+}
+
 
 if [ -z $input ]; then
   >&2 echo "usage: $(basename $0) <input> [output]"
@@ -90,6 +109,7 @@ for b in $(seq 1 $count); do
 done
 
 >&2 echo "Transcoding ${count} bands..."
+update_status status "Transcoding ${count} bands..."
 # TODO make timeout configurable
 timeout --foreground 1h gdal_translate \
   -q \
@@ -112,6 +132,7 @@ for z in $(seq 1 $zoom); do
 done
 
 >&2 echo "Adding overviews..."
+update_status status "Adding overviews..."
 timeout --foreground 1h gdaladdo \
   -q \
   -r lanczos \
@@ -125,6 +146,7 @@ timeout --foreground 1h gdaladdo \
   $overviews
 
 >&2 echo "Creating cloud-optimized GeoTIFF..."
+update_status status "Creating cloud-optimized GeoTIFF..."
 timeout --foreground 1h gdal_translate \
   -q \
   $bands \
@@ -140,6 +162,7 @@ timeout --foreground 1h gdal_translate \
 
 if [ "$mask" != "" ]; then
   >&2 echo "Adding overviews to mask..."
+  update_status status "Adding overviews to mask..."
   timeout --foreground 1h gdaladdo \
     -q \
     --config GDAL_TIFF_OVR_BLOCKSIZE 512 \
@@ -153,6 +176,7 @@ if [ "$mask" != "" ]; then
     $overviews
 
   >&2 echo "Creating cloud-optimized GeoTIFF (mask)..."
+  update_status status "Creating cloud-optimized GeoTIFF (mask)..."
   timeout --foreground 1h gdal_translate \
     -q \
     -co TILED=yes \

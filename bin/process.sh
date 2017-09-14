@@ -40,14 +40,27 @@ function cleanup() {
   fi
 }
 
+function update_status() {
+  set +u
+
+  if [[ ! -z "$callback_url" ]]; then
+    local status=$1
+    local message=$2
+    cat <<EOF | curl -s -X POST -d @- -H "Content-Type: application/json" "${callback_url}"
+{
+  "status": "${status}",
+  "message": "${message}"
+}
+EOF
+  fi
+
+  set -u
+}
+
 function mark_failed() {
   if [[ ! -z "$callback_url" ]]; then
     >&2 echo "Failed. Telling ${callback_url}"
-    cat <<EOF | curl -sf -X POST -d @- -H "Content-Type: application/json" "${callback_url}"
-{
-  "status": "failed"
-}
-EOF
+    update_status failed
   fi
 }
 
@@ -127,6 +140,7 @@ to_clean+=($intermediate)
 gdal_output=$(sed 's|s3://\([^/]*\)/|/vsis3/\1/|' <<< $output)
 
 >&2 echo "Processing ${input} into ${output}.{json,tif,tif.msk}..."
+update_status processing
 
 # 0. download source (if appropriate; non-archived, S3-hosted sources will be
 # transcoded using VSI)
@@ -134,15 +148,18 @@ gdal_output=$(sed 's|s3://\([^/]*\)/|/vsis3/\1/|' <<< $output)
 if [[ "$input" =~ ^s3:// ]] && \
    [[ "$input" =~ \.zip$ || "$input" =~ \.tar\.gz$ ]]; then
   >&2 echo "Downloading $input (archive) from S3..."
+  update_status status "Downloading $input (archive) from S3..."
   aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $input $source
   to_clean+=($source)
 elif [[ "$input" =~ s3\.amazonaws\.com ]] && \
      [[ "$input" =~ \.zip$ || "$input" =~ \.tar\.gz$ ]]; then
   >&2 echo "Downloading $input (archive) from S3 over HTTP..."
+  update_status status "Downloading $input (archive) from S3 over HTTP..."
   curl -sfL $input -o $source
   to_clean+=($source)
 elif [[ "$input" =~ ^https?:// && ! "$input" =~ s3\.amazonaws\.com ]]; then
   >&2 echo "Downloading $input..."
+  update_status status "Downloading $input..."
   curl -sfL $input -o $source
   to_clean+=($source)
 else
@@ -150,7 +167,7 @@ else
 fi
 
 # 1. transcode + generate overviews
-transcode.sh $source $intermediate
+transcode.sh $source $intermediate $callback_url
 
 # keep local sources
 if [[ "$input" =~ ^(s3|https?):// ]]; then
@@ -159,6 +176,7 @@ fi
 
 # 6. create thumbnail
 >&2 echo "Generating thumbnail..."
+update_status status "Generating thumbnail..."
 thumb=${base}.png
 to_clean+=($thumb ${thumb}.aux.xml ${thumb}.msk)
 info=$(rio info $intermediate 2> /dev/null)
@@ -178,6 +196,7 @@ gdal_translate \
 
 # 5. create footprint
 >&2 echo "Generating footprint..."
+update_status status "Generating footprint..."
 info=$(rio info $intermediate)
 resolution=$(get_resolution.py $intermediate)
 
@@ -217,6 +236,7 @@ meta=$(< $footprint)
 
 if [[ "$output" =~ ^s3:// ]]; then
   >&2 echo "Uploading..."
+  update_status status "Uploading..."
   aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $intermediate ${output}.tif
 
   aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $footprint ${output}.json
