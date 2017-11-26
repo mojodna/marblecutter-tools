@@ -228,7 +228,7 @@ rio shapes --mask --as-mask --precision 6 ${small} | \
       colorinterp=$(jq -c .colorinterp <<< $info) \
       resolution=$(jq -c .res <<< $info) \
       resolution_in_meters=${resolution} \
-      thumbnail_url="\"${output}.png\"" \
+      thumbnail="\"${output}.png\"" \
     > $footprint
 
 meta=$(< $footprint)
