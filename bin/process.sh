@@ -99,6 +99,13 @@ function update_aws_credentials() {
     export AWS_SECRET_ACCESS_KEY=$(jq -r .SecretAccessKey <<< $credentials)
     export AWS_SESSION_TOKEN=$(jq -r .Token <<< $credentials)
 
+    if [[ -z "$AWS_ACCESS_KEY_ID" ]]; then
+      # don't leave AWS credentials set while invalid
+      unset AWS_ACCESS_KEY_ID
+      unset AWS_SECRET_ACCESS_KEY
+      unset AWS_SESSION_TOKEN
+    fi
+
     set -e
   fi
 
