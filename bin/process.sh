@@ -102,7 +102,7 @@ function update_aws_credentials() {
     set -e
   fi
 
-  set -e
+  set -u
 }
 
 function mount_efs() {
