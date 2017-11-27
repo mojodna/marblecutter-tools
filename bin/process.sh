@@ -92,15 +92,13 @@ function update_aws_credentials() {
   # debug to see what we can see
   aws s3 ls
   env
-  curl 169.254.170.2$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
 
 
   # attempt to load credentials from an IAM profile if none were provided
   if [[ -z "$AWS_ACCESS_KEY_ID"  || -z "$AWS_SECRET_ACCESS_KEY" ]]; then
     set +e
 
-    local role=$(curl -sf --connect-timeout 1 http://169.254.169.254/latest/meta-data/iam/security-credentials/)
-    local credentials=$(curl -sf --connect-timeout 1 http://169.254.169.254/latest/meta-data/iam/security-credentials/${role})
+    local credentials=$(curl -sf --connect-timeout 1 169.254.170.2${AWS_CONTAINER_CREDENTIALS_RELATIVE_URI})
     export AWS_ACCESS_KEY_ID=$(jq -r .AccessKeyId <<< $credentials)
     export AWS_SECRET_ACCESS_KEY=$(jq -r .SecretAccessKey <<< $credentials)
     export AWS_SESSION_TOKEN=$(jq -r .Token <<< $credentials)
@@ -111,6 +109,8 @@ function update_aws_credentials() {
       unset AWS_SECRET_ACCESS_KEY
       unset AWS_SESSION_TOKEN
     fi
+
+    aws s3 ls
 
     set -e
   fi
