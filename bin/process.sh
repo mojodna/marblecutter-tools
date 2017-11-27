@@ -89,6 +89,12 @@ function cleanup_on_failure() {
 function update_aws_credentials() {
   set +u
 
+  # debug to see what we can see
+  aws s3 ls
+  env
+  curl 169.254.170.2$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
+
+
   # attempt to load credentials from an IAM profile if none were provided
   if [[ -z "$AWS_ACCESS_KEY_ID"  || -z "$AWS_SECRET_ACCESS_KEY" ]]; then
     set +e
@@ -105,9 +111,6 @@ function update_aws_credentials() {
       unset AWS_SECRET_ACCESS_KEY
       unset AWS_SESSION_TOKEN
     fi
-
-    # debug to see what we can see
-    aws s3 ls
 
     set -e
   fi
