@@ -106,6 +106,9 @@ function update_aws_credentials() {
       unset AWS_SESSION_TOKEN
     fi
 
+    # debug to see what we can see
+    aws s3 ls
+
     set -e
   fi
 
