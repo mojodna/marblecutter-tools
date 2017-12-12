@@ -11,11 +11,9 @@ from get_resolution import get_resolution
 
 
 def get_zoom(input):
-    return min(22,
-               int(
-                   math.ceil(
-                       math.log((2 * math.pi * 6378137) / (
-                           get_resolution(input) * 256)) / math.log(2))))
+    return math.ceil(
+        math.log((2 * math.pi * 6378137) /
+                 (get_resolution(input) * 256), 2))
 
 
 if __name__ == "__main__":
