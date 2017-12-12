@@ -10,13 +10,6 @@ import sys
 from get_resolution import get_resolution
 
 
-def get_zoom_offset(width, height, approximate_zoom):
-    return len([
-        x for x in range(approximate_zoom)
-        if (height / (2**(x + 1))) >= 1 and (width / (2**(x + 1))) >= 1
-    ])
-
-
 def get_zoom(input):
     return min(22,
                int(
