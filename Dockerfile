@@ -14,6 +14,7 @@ RUN apt-get update \
     git \
     jq \
     nfs-common \
+    parallel \
     python-pip \
     python-wheel \
     python-setuptools \
