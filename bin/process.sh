@@ -154,14 +154,16 @@ update_status processing
 # 0. download source (if appropriate; non-archived, S3-hosted sources will be
 # transcoded using VSI)
 
+inputFile="${input%%\?*}"
+
 if [[ "$input" =~ ^s3:// ]] && \
-   [[ "$input" =~ \.zip$ || "$input" =~ \.tar\.gz$ ]]; then
+   [[ "$inputFile" =~ \.zip$ || "$inputFile" =~ \.tar\.gz$ ]]; then
   >&2 echo "Downloading $input (archive) from S3..."
   update_status status "Downloading $input (archive) from S3..."
   aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $input $source
   to_clean+=($source)
 elif [[ "$input" =~ s3\.amazonaws\.com ]] && \
-     [[ "$input" =~ \.zip$ || "$input" =~ \.tar\.gz$ ]]; then
+     [[ "$inputFile" =~ \.zip$ || "$inputFile" =~ \.tar\.gz$ ]]; then
   >&2 echo "Downloading $input (archive) from S3 over HTTP..."
   update_status status "Downloading $input (archive) from S3 over HTTP..."
   curl -sfL $input -o $source
