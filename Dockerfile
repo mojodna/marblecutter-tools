@@ -26,6 +26,8 @@ WORKDIR /opt/marblecutter-tools
 
 COPY requirements.txt /opt/marblecutter-tools/requirements.txt
 
+RUN pip install cython
+
 RUN pip install -r requirements.txt && \
   rm -rf /root/.cache
 

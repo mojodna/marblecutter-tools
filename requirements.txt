@@ -1,3 +1,4 @@
 awscli ~= 1.11.151
 haversine ~= 0.4.5
-rasterio[s3] >= 1.0a9
+# rasterio[s3] >= 1.0a12
+https://github.com/mojodna/rasterio/archive/bf7c4443cc68981e591bad0137cad248c4652bb7.tar.gz#egg=rasterio[s3]
