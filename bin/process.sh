@@ -93,7 +93,7 @@ function update_aws_credentials() {
   if [[ -z "$AWS_ACCESS_KEY_ID"  || -z "$AWS_SECRET_ACCESS_KEY" ]]; then
     set +e
 
-    local credentials=$(curl -sf --connect-timeout 1 169.254.170.2${AWS_CONTAINER_CREDENTIALS_RELATIVE_URI})
+    local credentials=$(curl -sf --connect-timeout 1 "169.254.170.2${AWS_CONTAINER_CREDENTIALS_RELATIVE_URI}")
     export AWS_ACCESS_KEY_ID=$(jq -r .AccessKeyId <<< $credentials)
     export AWS_SECRET_ACCESS_KEY=$(jq -r .SecretAccessKey <<< $credentials)
     export AWS_SESSION_TOKEN=$(jq -r .Token <<< $credentials)
@@ -166,12 +166,12 @@ elif [[ "$input" =~ s3\.amazonaws\.com ]] && \
      [[ "$inputFile" =~ \.zip$ || "$inputFile" =~ \.tar\.gz$ ]]; then
   >&2 echo "Downloading $input (archive) from S3 over HTTP..."
   update_status status "Downloading $input (archive) from S3 over HTTP..."
-  curl -sfL $input -o $source
+  curl -sfL "$input" -o $source
   to_clean+=($source)
 elif [[ "$input" =~ ^https?:// && ! "$input" =~ s3\.amazonaws\.com ]]; then
   >&2 echo "Downloading $input..."
   update_status status "Downloading $input..."
-  curl -sfL $input -o $source
+  curl -sfL "$input" -o $source
   to_clean+=($source)
 else
   source=$input
