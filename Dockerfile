@@ -37,7 +37,6 @@ RUN ln -s /opt/marblecutter-tools/bin/* /usr/local/bin/ && \
   mkdir -p /efs
 
 ENV CPL_VSIL_CURL_ALLOWED_EXTENSIONS .vrt,.tif,.tiff,.ovr,.msk,.jp2,.img,.hgt
-ENV GDAL_CACHEMAX 512
 ENV GDAL_DISABLE_READDIR_ON_OPEN TRUE
 ENV VSI_CACHE TRUE
 ENV VSI_CACHE_SIZE 536870912
