@@ -142,7 +142,7 @@ done
 
 >&2 echo "Adding overviews..."
 update_status status "Adding overviews..."
-timeout --foreground 1h gdaladdo \
+timeout --foreground 2h gdaladdo \
   -q \
   -r lanczos \
   --config GDAL_TIFF_OVR_BLOCKSIZE 512 \
