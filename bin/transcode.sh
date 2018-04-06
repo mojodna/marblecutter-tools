@@ -120,7 +120,7 @@ done
 >&2 echo "Transcoding ${count} bands..."
 update_status status "Transcoding ${count} bands..."
 # TODO make timeout configurable
-timeout --foreground 2h gdal_translate \
+timeout --foreground 1h gdal_translate \
   -q \
   $bands \
   $mask \
@@ -142,7 +142,7 @@ done
 
 >&2 echo "Adding overviews..."
 update_status status "Adding overviews..."
-timeout --foreground 4h gdaladdo \
+timeout --foreground 2h gdaladdo \
   -q \
   -r lanczos \
   --config GDAL_TIFF_OVR_BLOCKSIZE 512 \
@@ -156,7 +156,7 @@ timeout --foreground 4h gdaladdo \
 
 >&2 echo "Creating cloud-optimized GeoTIFF..."
 update_status status "Creating cloud-optimized GeoTIFF..."
-timeout --foreground 2h gdal_translate \
+timeout --foreground 1h gdal_translate \
   -q \
   $bands \
   -co TILED=yes \
