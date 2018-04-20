@@ -224,7 +224,7 @@ to_clean+=($footprint)
 small=${intermediate/.tif/_small.tif}
 to_clean+=($small)
 
-rio shapes --mask --as-mask --precision 6 ${small} | \
+rio shapes --collection --mask --as-mask --precision 6 ${small} | \
   build_metadata.py \
     --meta \
       url="\"${output}.tif\"" \
