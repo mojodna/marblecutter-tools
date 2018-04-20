@@ -195,7 +195,6 @@ if [ "$mask" != "" ]; then
     -co NUM_THREADS=ALL_CPUS \
     -co COPY_SRC_OVERVIEWS=YES \
     -co COMPRESS=DEFLATE \
-    -co PREDICTOR=2 \
     --config GDAL_TIFF_OVR_BLOCKSIZE 512 \
     ${intermediate}.msk ${output}.msk
 fi
