@@ -188,6 +188,7 @@ if [ "$mask" != "" ]; then
   update_status status "Creating cloud-optimized GeoTIFF (mask)..."
   timeout --foreground 1h gdal_translate \
     -q \
+    -of GTiff \
     -co TILED=yes \
     -co BLOCKXSIZE=512 \
     -co BLOCKYSIZE=512 \
