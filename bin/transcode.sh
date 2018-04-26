@@ -122,6 +122,7 @@ update_status status "Transcoding ${count} bands..."
 # TODO make timeout configurable
 timeout --foreground 1h gdal_translate \
   -q \
+  -stats \
   $bands \
   $mask \
   -co TILED=yes \
@@ -158,6 +159,7 @@ timeout --foreground 2h gdaladdo \
 update_status status "Creating cloud-optimized GeoTIFF..."
 timeout --foreground 1h gdal_translate \
   -q \
+  -stats \
   $bands \
   -co TILED=yes \
   -co BLOCKXSIZE=512 \
