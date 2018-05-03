@@ -92,7 +92,8 @@ elif [[ $input =~ "tar://" ]]; then
 fi
 
 
-if [ "$count" -eq 4 ]; then
+if [ "$count" -eq 4 ] && [ "$dtype" == "uint8" ]; then
+  # TODO check colorinterp to see if it's explicitly an alpha channel
   mask="-mask 4"
 else
   mask="-mask mask"
@@ -110,7 +111,9 @@ else
 fi
 
 for b in $(seq 1 $count); do
-  if [ "$b" -eq 4 ]; then
+  if [ "$b" -eq 4 ] && [ "$dtype" == "uint8" ]; then
+    # TODO check colorinterp to see if it's explicitly an alpha channel
+    >&2 echo "Dropping band 4; assuming it's an alpha channel"
     break
   fi
 
