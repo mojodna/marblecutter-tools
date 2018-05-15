@@ -120,8 +120,8 @@ for b in $(seq 1 $count); do
   bands="$bands -b $b"
 done
 
->&2 echo "Transcoding ${count} bands..."
-update_status status "Transcoding ${count} bands..."
+>&2 echo "Transcoding ${count} band(s)..."
+update_status status "Transcoding ${count} band(s)..."
 # TODO make timeout configurable
 timeout --foreground 1h gdal_translate \
   -q \
