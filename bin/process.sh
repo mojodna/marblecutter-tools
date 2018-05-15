@@ -234,7 +234,7 @@ rio shapes --collection --mask --as-mask --precision 6 ${small} | \
       size=$(stat -c %s "${intermediate}" | cut -f1) \
       dtype=$(jq -c .dtype <<< $info) \
       crs=$(jq -c .crs <<< $info) \
-      projection="\"$(gdalsrsinfo $(jq -r .crs <<< $info) -o wkt | sed 's/\"/\\"/g')\"" \
+      projection="\"$(gdalsrsinfo "$(jq -r .crs <<< $info)" -o wkt | sed 's/\"/\\"/g')\"" \
       colorinterp=$(jq -c .colorinterp <<< $info) \
       resolution=$(jq -c .res <<< $info) \
       resolution_in_meters=${resolution} \
