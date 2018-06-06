@@ -93,10 +93,17 @@ function update_aws_credentials() {
   if [[ -z "$AWS_ACCESS_KEY_ID"  || -z "$AWS_SECRET_ACCESS_KEY" ]]; then
     set +e
 
-    local credentials=$(curl -sf --connect-timeout 1 "169.254.170.2${AWS_CONTAINER_CREDENTIALS_RELATIVE_URI}")
-    export AWS_ACCESS_KEY_ID=$(jq -r .AccessKeyId <<< $credentials)
-    export AWS_SECRET_ACCESS_KEY=$(jq -r .SecretAccessKey <<< $credentials)
-    export AWS_SESSION_TOKEN=$(jq -r .Token <<< $credentials)
+    if [[ -z "$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI" ]]; then
+      local credentials=$(curl -sf --connect-timeout 1 "http://169.254.169.254/latest/meta-data/iam/security-credentials/")
+      export AWS_ACCESS_KEY_ID=$(jq -r .AccessKeyId <<< $credentials)
+      export AWS_SECRET_ACCESS_KEY=$(jq -r .SecretAccessKey <<< $credentials)
+      export AWS_SESSION_TOKEN=$(jq -r .Token <<< $credentials)
+    else
+      local credentials=$(curl -sf --connect-timeout 1 "http://169.254.170.2${AWS_CONTAINER_CREDENTIALS_RELATIVE_URI}")
+      export AWS_ACCESS_KEY_ID=$(jq -r .AccessKeyId <<< $credentials)
+      export AWS_SECRET_ACCESS_KEY=$(jq -r .SecretAccessKey <<< $credentials)
+      export AWS_SESSION_TOKEN=$(jq -r .Token <<< $credentials)
+    fi
 
     if [[ -z "$AWS_ACCESS_KEY_ID" ]]; then
       # don't leave AWS credentials set while invalid
