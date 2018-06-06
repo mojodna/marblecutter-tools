@@ -1,4 +1,3 @@
 awscli ~= 1.11.151
 haversine ~= 0.4.5
-# rasterio[s3] >= 1.0a12
-https://github.com/mapbox/rasterio/archive/0653ced.tar.gz#egg=rasterio[s3]
+rasterio[s3] >= 1.0b1
