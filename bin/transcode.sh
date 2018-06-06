@@ -132,6 +132,7 @@ timeout --foreground 1h gdal_translate \
   -co BLOCKXSIZE=512 \
   -co BLOCKYSIZE=512 \
   -co NUM_THREADS=ALL_CPUS \
+  -co BIGTIFF=IF_SAFER \
   $opts \
   $input $intermediate
 
@@ -168,6 +169,7 @@ timeout --foreground 1h gdal_translate \
   -co BLOCKXSIZE=512 \
   -co BLOCKYSIZE=512 \
   -co NUM_THREADS=ALL_CPUS \
+  -co BIGTIFF=IF_SAFER \
   $opts \
   $overview_opts \
   -co COPY_SRC_OVERVIEWS=YES \
