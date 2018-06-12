@@ -99,7 +99,7 @@ else
   mask="-mask mask"
 fi
 
-if [ "$dtype" == "uint8" ]; then
+if ( [[ "$count" -eq 3 ]] || [[ "$count" -eq 4 ]] ) && [[ "$dtype" == "uint8" ]]; then
   opts="-co COMPRESS=JPEG -co PHOTOMETRIC=YCbCr"
   overview_opts="--config COMPRESS_OVERVIEW JPEG --config PHOTOMETRIC_OVERVIEW YCbCr"
 elif [[ "$dtype" =~ "float" ]]; then
