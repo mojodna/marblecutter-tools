@@ -74,7 +74,7 @@ function cleanup_on_failure() {
     # mark as failed
     mark_failed
 
-    local s3_outputs=(${output}.tif ${output}.tif.msk ${output}.json ${output}.png)
+    local s3_outputs=(${output}.tif ${output}.json ${output}.png)
 
     set +e
     for x in ${s3_outputs[@]}; do
@@ -152,10 +152,10 @@ base=$(mktemp)
 to_clean+=($base)
 source="${base}.${filename%%\?*}"
 intermediate=${base}-intermediate.tif
-to_clean+=($intermediate ${intermediate}.msk)
+to_clean+=($intermediate)
 gdal_output=$(sed 's|s3://\([^/]*\)/|/vsis3/\1/|' <<< $output)
 
->&2 echo "Processing ${input} into ${output}.{json,tif,tif.msk}..."
+>&2 echo "Processing ${input} into ${output}.{json,tif,png}..."
 update_status processing
 
 # 0. download source (if appropriate; non-archived, S3-hosted sources will be
@@ -258,17 +258,10 @@ if [[ "$output" =~ ^s3:// ]]; then
   aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $footprint ${output}.json
 
   aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $thumb ${output}.png
-
-  if [ -f ${intermediate}.msk ]; then
-    # 3. upload mask
-    >&2 echo "Uploading mask..."
-    aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} ${intermediate}.msk ${output}.tif.msk
-  fi
 else
   mv $intermediate ${output}.tif
   mv $footprint ${output}.json
   mv $thumb ${output}.png
-  mv ${intermediate}.msk ${output}.tif.msk
 fi
 
 # call web hooks
