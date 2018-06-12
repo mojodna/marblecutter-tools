@@ -103,11 +103,11 @@ if ( [[ "$count" -eq 3 ]] || [[ "$count" -eq 4 ]] ) && [[ "$dtype" == "uint8" ]]
   opts="-co COMPRESS=JPEG -co PHOTOMETRIC=YCbCr"
   overview_opts="--config COMPRESS_OVERVIEW JPEG --config PHOTOMETRIC_OVERVIEW YCbCr"
 elif [[ "$dtype" =~ "float" ]]; then
-  opts="-co COMPRESS=DEFLATE -co PREDICTOR=3"
-  overview_opts="--config COMPRESS_OVERVIEW DEFLATE --config PREDICTOR_OVERVIEW 3"
+  opts="-co COMPRESS=DEFLATE -co PREDICTOR=3 -co ZLEVEL=9"
+  overview_opts="--config COMPRESS_OVERVIEW DEFLATE --config PREDICTOR_OVERVIEW 3 --config ZLEVEL_OVERVIEW 9"
 else
-  opts="-co COMPRESS=DEFLATE -co PREDICTOR=2"
-  overview_opts="--config COMPRESS_OVERVIEW DEFLATE --config PREDICTOR_OVERVIEW 2"
+  opts="-co COMPRESS=DEFLATE -co PREDICTOR=2 -co ZLEVEL=9"
+  overview_opts="--config COMPRESS_OVERVIEW DEFLATE --config PREDICTOR_OVERVIEW 2 --config ZLEVEL_OVERVIEW 9"
 fi
 
 for b in $(seq 1 $count); do
@@ -202,6 +202,7 @@ if [ "$mask" != "" ]; then
     -co NUM_THREADS=ALL_CPUS \
     -co COPY_SRC_OVERVIEWS=YES \
     -co COMPRESS=DEFLATE \
+    -co ZLEVEL=9 \
     --config GDAL_TIFF_OVR_BLOCKSIZE 512 \
     ${intermediate}.msk ${output}.msk
 fi
