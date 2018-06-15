@@ -27,6 +27,16 @@ EOF
   set -u
 }
 
+function cleanup_transcode_on_failure() {
+  # prevent double-cleanup
+  if [[ $failed -eq 0 ]]; then
+    failed=1
+
+    for f in ${to_clean[@]}; do
+      rm -f "${f}"
+    done
+  fi
+}
 
 if [ -z $input ]; then
   >&2 echo "usage: $(basename $0) <input> [output]"
@@ -38,6 +48,8 @@ if [ -z $output ]; then
 fi
 
 ext=${input##*.}
+failed=0
+to_clean=()
 
 if [[ "$ext" == "zip" ]]; then
   # assume it's a zipped TIFF
@@ -69,6 +81,9 @@ elif [[ "$input" =~ \.tar$ ]]; then
   input="tar://${input}!${inner_source}"
 fi
 
+trap cleanup_transcode_on_failure INT
+trap cleanup_transcode_on_failure ERR
+
 >&2 echo "Transcoding ${input}..."
 
 info=$(rio info $input 2> /dev/null)
@@ -84,6 +99,7 @@ opts=""
 overview_opts=""
 bands=""
 intermediate=$(mktemp --suffix ".tif")
+to_clean+=($intermediate ${intermediate}.msk ${intermediate}.aux.xml)
 
 # update input path for GDAL now that rasterio has read it
 if [[ $input =~ "http://" ]] || [[ $input =~ "https://" ]]; then
@@ -210,4 +226,4 @@ if [ "$mask" != "" ]; then
     ${intermediate}.msk ${output}.msk
 fi
 
-rm -f $intermediate ${intermediate}.msk
+rm -f $intermediate ${intermediate}.msk ${intermediate}.aux.xml

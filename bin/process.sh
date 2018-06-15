@@ -159,7 +159,7 @@ base=$(mktemp)
 to_clean+=($base)
 source="${base}.${filename%%\?*}"
 intermediate=${base}-intermediate.tif
-to_clean+=($intermediate ${intermediate}.msk)
+to_clean+=($intermediate ${intermediate}.msk ${source}.aux.xml)
 gdal_output=$(sed 's|s3://\([^/]*\)/|/vsis3/\1/|' <<< $output)
 
 >&2 echo "Processing ${input} into ${output}.{json,tif,tif.msk}..."
