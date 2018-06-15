@@ -11,6 +11,10 @@ THUMBNAIL_SIZE=${THUMBNAIL_SIZE:-300}
 export AWS_S3_ENDPOINT_SCHEME=${AWS_S3_ENDPOINT_SCHEME:-https://}
 export AWS_S3_ENDPOINT=${AWS_S3_ENDPOINT:-s3.amazonaws.com}
 
+if [[ ! -z "$DEBUG" ]]; then
+  set -x
+fi
+
 set -euo pipefail
 
 failed=0

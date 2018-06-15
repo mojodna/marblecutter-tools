@@ -4,6 +4,10 @@ input=$1
 output=$2
 callback_url=$3
 
+if [[ ! -z "$DEBUG" ]]; then
+  set -x
+fi
+
 set -euo pipefail
 
 function update_status() {
