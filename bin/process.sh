@@ -81,11 +81,13 @@ function cleanup_on_failure() {
 
     local s3_outputs=(${output}.tif ${output}.tif.msk ${output}.json ${output}.png)
 
-    set +e
-    for x in ${s3_outputs[@]}; do
-      aws s3 rm --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $x 2> /dev/null
-    done
-    set -e
+    if [[ "$output" =~ ^s3:// ]]; then
+      set +e
+      for x in ${s3_outputs[@]}; do
+        aws s3 rm --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $x 2> /dev/null
+      done
+      set -e
+    fi
 
     cleanup
   fi
