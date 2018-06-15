@@ -132,7 +132,7 @@ fi
 
 for b in $(seq 1 $count); do
   if [ "$b" -eq 4 ] && [ "$dtype" == "uint8" ] && [ "$(jq -r ".[3]" <<< $colorinterp)" == "alpha" ]; then
-    >&2 echo "Dropping band 4; it's an alpha channel"
+    >&2 echo "Dropping band 4; it's an alpha channel and being treated as a mask"
     break
   fi
 

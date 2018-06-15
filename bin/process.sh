@@ -162,11 +162,10 @@ intermediate=${base}-intermediate.tif
 to_clean+=($intermediate ${intermediate}.msk ${source}.aux.xml)
 gdal_output=$(sed 's|s3://\([^/]*\)/|/vsis3/\1/|' <<< $output)
 
->&2 echo "Processing ${input} into ${output}.{json,tif,tif.msk}..."
+>&2 echo "Processing ${input} into ${output}.{json,png,tif,tif.msk}..."
 update_status processing
 
-# 0. download source (if appropriate; non-archived, S3-hosted sources will be
-# transcoded using VSI)
+# 0. download source
 
 inputFile="${input%%\?*}"
 
