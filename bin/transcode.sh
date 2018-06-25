@@ -32,9 +32,11 @@ function cleanup_transcode_on_failure() {
   if [[ $failed -eq 0 ]]; then
     failed=1
 
-    for f in ${to_clean[@]}; do
-      rm -f "${f}"
-    done
+    if [[ ${#to_clean[@]} -gt 0 ]]; then
+      for f in ${to_clean[@]}; do
+        rm -f "${f}"
+      done
+    fi
   fi
 }
 
