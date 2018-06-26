@@ -144,7 +144,7 @@ done
 >&2 echo "Transcoding ${count} band(s)..."
 update_status status "Transcoding ${count} band(s)..."
 # TODO make timeout configurable
-timeout --foreground 1h gdal_translate \
+timeout --foreground 2h gdal_translate \
   -q \
   -stats \
   $bands \
@@ -182,7 +182,7 @@ timeout --foreground 2h gdaladdo \
 
 >&2 echo "Creating cloud-optimized GeoTIFF..."
 update_status status "Creating cloud-optimized GeoTIFF..."
-timeout --foreground 1h gdal_translate \
+timeout --foreground 2h gdal_translate \
   -q \
   -stats \
   $bands \
