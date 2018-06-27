@@ -200,7 +200,7 @@ timeout --foreground 2h gdal_translate \
 if [ "$mask" != "" ]; then
   >&2 echo "Adding overviews to mask..."
   update_status status "Adding overviews to mask..."
-  timeout --foreground 1h gdaladdo \
+  timeout --foreground 4h gdaladdo \
     -q \
     --config GDAL_TIFF_OVR_BLOCKSIZE 512 \
     --config TILED_OVERVIEW yes \
