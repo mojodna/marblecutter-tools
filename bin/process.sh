@@ -97,7 +97,7 @@ function update_aws_credentials() {
   set +u
 
   # attempt to load credentials from an IAM profile if none were provided
-  if [[ -z "$AWS_ACCESS_KEY_ID"  || -z "$AWS_SECRET_ACCESS_KEY" ]]; then
+  if [[ -z "$AWS_ACCESS_KEY_ID" || -z "$AWS_SECRET_ACCESS_KEY" || ! -z "$AWS_SESSION_TOKEN" ]]; then
     set +e
 
     if [[ -z "$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI" ]]; then
@@ -261,6 +261,8 @@ rio shapes --collection --mask --as-mask --precision 6 ${small} | \
 meta=$(< $footprint)
 
 if [[ "$output" =~ ^s3:// ]]; then
+  update_aws_credentials
+
   >&2 echo "Uploading..."
   update_status status "Uploading..."
   aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $intermediate ${output}.tif
