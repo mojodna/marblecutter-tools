@@ -133,12 +133,11 @@ else
 fi
 
 for b in $(seq 1 $count); do
-  if [ "$b" -eq 4 ] && [ "$dtype" == "uint8" ] && [ "$(jq -r ".[3]" <<< $colorinterp)" == "alpha" ]; then
-    >&2 echo "Dropping band 4; it's an alpha channel and being treated as a mask"
-    break
+  if [ "$dtype" == "uint8" ] && [ "$(jq -r ".[3]" <<< $colorinterp)" == "alpha" ]; then
+    >&2 echo "Skipping alpha band; it's being treated as a mask"
+  else
+    bands="$bands -b $b"
   fi
-
-  bands="$bands -b $b"
 done
 
 >&2 echo "Transcoding ${count} band(s)..."
