@@ -133,8 +133,8 @@ else
 fi
 
 for b in $(seq 1 $count); do
-  if [ "$dtype" == "uint8" ] && [ "$(jq -r ".[3]" <<< $colorinterp)" == "alpha" ]; then
-    >&2 echo "Skipping alpha band; it's being treated as a mask"
+  if [ "$dtype" == "uint8" ] && [ "$(jq -r ".[$[b - 1]]" <<< $colorinterp)" == "alpha" ]; then
+    >&2 echo "Skipping band $b; it's an alpha band being treated as a mask"
   else
     bands="$bands -b $b"
   fi
