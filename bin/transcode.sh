@@ -153,7 +153,6 @@ timeout --foreground 2h gdal_translate \
   -co BLOCKYSIZE=512 \
   -co NUM_THREADS=ALL_CPUS \
   -co BIGTIFF=IF_SAFER \
-  --config GDAL_TIFF_INTERNAL_MASK YES \
   $opts \
   $input $intermediate
 
@@ -180,6 +179,22 @@ timeout --foreground 8h gdaladdo \
   $intermediate \
   $overviews
 
+if [ -f $intermediate.msk ]; then
+  >&2 echo "Adding overviews to mask..."
+  update_status status "Adding overviews to mask..."
+  timeout --foreground 4h gdaladdo \
+    -q \
+    --config GDAL_TIFF_OVR_BLOCKSIZE 512 \
+    --config TILED_OVERVIEW yes \
+    --config COMPRESS_OVERVIEW DEFLATE \
+    --config BLOCKXSIZE_OVERVIEW 512 \
+    --config BLOCKYSIZE_OVERVIEW 512 \
+    --config SPARSE_OK_OVERVIEW yes \
+    --config NUM_THREADS_OVERVIEW ALL_CPUS \
+    ${intermediate}.msk \
+    $overviews
+fi
+
 >&2 echo "Creating cloud-optimized GeoTIFF..."
 update_status status "Creating cloud-optimized GeoTIFF..."
 timeout --foreground 2h gdal_translate \
@@ -199,3 +214,4 @@ timeout --foreground 2h gdal_translate \
   $intermediate $output
 
 rm -f $intermediate ${intermediate}.aux.xml
+rm -f $intermediate $intermediate.msk ${intermediate}.aux.xml
