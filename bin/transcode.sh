@@ -145,7 +145,6 @@ update_status status "Transcoding ${count} band(s)..."
 # TODO make timeout configurable
 timeout --foreground 2h gdal_translate \
   -q \
-  -stats \
   $bands \
   $mask \
   -co TILED=yes \
