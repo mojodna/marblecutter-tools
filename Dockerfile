@@ -1,4 +1,4 @@
-FROM quay.io/mojodna/gdal:v2.3.1
+FROM quay.io/mojodna/gdal:v2.3.x
 MAINTAINER Seth Fitzsimmons <seth@mojodna.net>
 
 ARG http_proxy
