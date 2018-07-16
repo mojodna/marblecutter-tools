@@ -211,5 +211,4 @@ timeout --foreground 2h gdal_translate \
   --config GDAL_TIFF_OVR_BLOCKSIZE 512 \
   $intermediate $output
 
-rm -f $intermediate ${intermediate}.aux.xml
 rm -f $intermediate $intermediate.msk ${intermediate}.aux.xml
