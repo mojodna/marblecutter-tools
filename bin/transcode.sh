@@ -205,7 +205,6 @@ timeout --foreground 2h gdal_translate \
   -co NUM_THREADS=ALL_CPUS \
   -co BIGTIFF=IF_SAFER \
   $opts \
-  $overview_opts \
   -co COPY_SRC_OVERVIEWS=YES \
   --config GDAL_TIFF_INTERNAL_MASK YES \
   --config GDAL_TIFF_OVR_BLOCKSIZE 512 \
