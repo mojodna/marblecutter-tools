@@ -199,7 +199,6 @@ update_status status "Creating cloud-optimized GeoTIFF..."
 timeout --foreground 2h gdal_translate \
   -q \
   -stats \
-  $bands \
   -co TILED=yes \
   -co BLOCKXSIZE=512 \
   -co BLOCKYSIZE=512 \
