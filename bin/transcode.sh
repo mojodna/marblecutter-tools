@@ -114,13 +114,6 @@ elif [[ $input =~ "tar://" ]]; then
   input=$(sed 's|tar://\(.*\)!\(.*\)|/vsitar/\1/\2|' <<< $input)
 fi
 
-
-if [ "$count" -eq 4 ] && [ "$dtype" == "uint8" ] && [ "$(jq -r ".[3]" <<< $colorinterp)" == "alpha" ]; then
-  mask="-mask 4"
-else
-  mask="-mask mask"
-fi
-
 if ( [[ "$count" -eq 3 ]] || [[ "$count" -eq 4 ]] ) && [[ "$dtype" == "uint8" ]]; then
   opts="-co COMPRESS=JPEG -co PHOTOMETRIC=YCbCr"
   overview_opts="--config COMPRESS_OVERVIEW JPEG --config PHOTOMETRIC_OVERVIEW YCbCr"
@@ -135,6 +128,7 @@ fi
 for b in $(seq 1 $count); do
   if [ "$dtype" == "uint8" ] && [ "$(jq -r ".[$[b - 1]]" <<< $colorinterp)" == "alpha" ]; then
     >&2 echo "Skipping band $b; it's an alpha band being treated as a mask"
+    mask="-mask $b"
   else
     bands="$bands -b $b"
   fi
