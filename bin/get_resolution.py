@@ -13,6 +13,8 @@ from haversine import haversine
 def get_resolution(input):
     with rasterio.Env():
         with rasterio.open(input) as src:
+            if src.crs is None:
+                raise Exception("%s is not georeferenced" % input)
             # grab the lowest resolution dimension
             if src.crs.is_geographic:
                 left = (src.bounds[0], (src.bounds[1] + src.bounds[3]) / 2)
