@@ -1,5 +1,30 @@
 #!/usr/bin/env bash
 
+resample=""
+
+function usage() {
+  >&2 echo "usage: $(basename $0) [-r <method>] [-v] <input> [output]"
+}
+
+OPTIND=1
+
+while getopts "h?r:v" opt; do
+  case "$opt" in
+    h|\?)
+      usage
+      exit 0
+      ;;
+    r)
+      resample=$OPTARG
+      ;;
+    v)
+      DEBUG=true
+      ;;
+  esac
+done
+
+shift $((OPTIND-1))
+
 input=$1
 output=$2
 callback_url=$3
@@ -41,7 +66,7 @@ function cleanup_transcode_on_failure() {
 }
 
 if [ -z $input ]; then
-  >&2 echo "usage: $(basename $0) <input> [output]"
+  usage
   exit 1
 fi
 
@@ -125,6 +150,13 @@ else
   overview_opts="--config COMPRESS_OVERVIEW DEFLATE --config PREDICTOR_OVERVIEW 2 --config ZLEVEL_OVERVIEW 9"
 fi
 
+if [[ "$count" -eq 1 ]] && [[ "$(jq -r ".[0]" <<< $colorinterp)" == "palette" ]]; then
+  >&2 echo "Paletted source detected; using nearest resampling by default"
+  resample="${resample:-nearest}"
+else
+  resample="${resample:-lanczos}"
+fi
+
 for b in $(seq 1 $count); do
   if [ "$dtype" == "uint8" ] && [ "$(jq -r ".[$[b - 1]]" <<< $colorinterp)" == "alpha" ]; then
     >&2 echo "Skipping band $b; it's an alpha band being treated as a mask"
@@ -162,7 +194,7 @@ done
 update_status status "Adding overviews..."
 timeout --foreground 8h gdaladdo \
   -q \
-  -r lanczos \
+  -r $resample \
   --config GDAL_TIFF_OVR_BLOCKSIZE 512 \
   --config TILED_OVERVIEW yes \
   --config BLOCKXSIZE_OVERVIEW 512 \

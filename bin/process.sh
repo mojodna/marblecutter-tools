@@ -1,5 +1,27 @@
 #!/usr/bin/env bash
 
+transcode_args=""
+
+OPTIND=1
+
+while getopts "h?r:v" opt; do
+  case "$opt" in
+    h|\?)
+      usage
+      exit 0
+      ;;
+    r)
+      transcode_args="${transcode_args} -r $OPTARG"
+      ;;
+    v)
+      transcode_args="${transcode_args} -v"
+      DEBUG=true
+      ;;
+  esac
+done
+
+shift $((OPTIND-1))
+
 input=$1
 output=$2
 callback_url=$3
@@ -22,6 +44,10 @@ failed=0
 cleaning=0
 to_clean=()
 
+function usage() {
+  >&2 echo "usage: $(basename $0) [-r method] [-v] <input> <output basename> [callback URL]"
+}
+
 function check_args() {
   if [[ -z "$input" || -z "$output" ]]; then
     # input is an HTTP-accessible GDAL-readable image
@@ -30,7 +56,7 @@ function check_args() {
     #   bin/process.sh \
     #   http://hotosm-oam.s3.amazonaws.com/uploads/2016-12-29/58655b07f91c99bd00e9c7ab/scene/0/scene-0-image-0-transparent_image_part2_mosaic_rgb.tif \
     #   s3://oam-dynamic-tiler-tmp/sources/58655b07f91c99bd00e9c7ab/0/58655b07f91c99bd00e9c7a6
-    >&2 echo "usage: $(basename $0) <input> <output basename> [callback URL]"
+    usage
     exit 1
   fi
 }
@@ -193,7 +219,7 @@ else
 fi
 
 # 1. transcode + generate overviews
-transcode.sh $source $intermediate $callback_url
+transcode.sh $transcode_args $source $intermediate $callback_url
 
 # keep local sources
 if [[ "$input" =~ ^(s3|https?):// ]]; then
