@@ -171,6 +171,29 @@ function mount_efs() {
   set -u
 }
 
+function download() {
+  local input=$1
+  local source=$2
+
+  if [[ "$input" =~ ^s3:// ]]; then
+    >&2 echo "Downloading $input from S3..."
+    update_status status "Downloading $input from S3..."
+    aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $input $source
+  elif [[ "$input" =~ s3\.amazonaws\.com ]]; then
+    >&2 echo "Downloading $input from S3 over HTTP..."
+    update_status status "Downloading $input from S3 over HTTP..."
+    curl -sfL "$input" -o $source
+  elif [[ "$input" =~ ^https?:// && ! "$input" =~ s3\.amazonaws\.com ]]; then
+    >&2 echo "Downloading $input..."
+    update_status status "Downloading $input..."
+    curl -sfL "$input" -o $source
+  else
+    cp $input $source
+  fi
+
+  to_clean+=($source)
+}
+
 check_args
 
 update_aws_credentials
@@ -197,26 +220,8 @@ update_status processing
 
 # 0. download source
 
-inputFile="${input%%\?*}"
+download "$input" "$source"
 
-if [[ "$input" =~ ^s3:// ]]; then
-  >&2 echo "Downloading $input from S3..."
-  update_status status "Downloading $input from S3..."
-  aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $input $source
-  to_clean+=($source)
-elif [[ "$input" =~ s3\.amazonaws\.com ]]; then
-  >&2 echo "Downloading $input from S3 over HTTP..."
-  update_status status "Downloading $input from S3 over HTTP..."
-  curl -sfL "$input" -o $source
-  to_clean+=($source)
-elif [[ "$input" =~ ^https?:// && ! "$input" =~ s3\.amazonaws\.com ]]; then
-  >&2 echo "Downloading $input..."
-  update_status status "Downloading $input..."
-  curl -sfL "$input" -o $source
-  to_clean+=($source)
-else
-  source=$input
-fi
 
 # 1. transcode + generate overviews
 transcode.sh $transcode_args $source $intermediate $callback_url
