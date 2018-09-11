@@ -222,6 +222,14 @@ update_status processing
 
 download "$input" "$source"
 
+if [[ "$input" =~ \.img ]]; then
+  set +e
+
+  >&2 echo "Attempting to download .ige companion..."
+  download "${input/%.img/.ige}" "${source/%.img/.ige}"
+
+  set -e
+fi
 
 # 1. transcode + generate overviews
 transcode.sh $transcode_args $source $intermediate $callback_url
