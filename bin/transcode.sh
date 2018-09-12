@@ -77,6 +77,7 @@ fi
 ext=${input##*.}
 failed=0
 to_clean=()
+unzipped=""
 
 if [[ "$ext" == "zip" ]]; then
   # assume it's a zipped TIFF
@@ -107,8 +108,11 @@ elif [[ "$input" =~ \.tar$ ]]; then
 
   input="tar://${input}!${inner_source}"
 elif [[ "$input" =~ \.gz$ ]]; then
-  gzip -d "$input"
-  input="${input%%.gz}"
+  unzipped=$(mktemp --suffix "-$(basename ${input%%\.gz})")
+  gzip -dc "$input" > $unzipped
+  input="$unzipped"
+
+  to_clean+=($unzipped)
 fi
 
 trap cleanup_transcode_on_failure INT
@@ -239,4 +243,4 @@ timeout --foreground 2h gdal_translate \
   --config GDAL_TIFF_OVR_BLOCKSIZE 512 \
   $intermediate $output
 
-rm -f $intermediate $intermediate.msk ${intermediate}.aux.xml
+rm -f $intermediate $intermediate.msk ${intermediate}.aux.xml $unzipped
