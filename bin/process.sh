@@ -178,17 +178,17 @@ function download() {
   if [[ "$input" =~ ^s3:// ]]; then
     >&2 echo "Downloading $input from S3..."
     update_status status "Downloading $input from S3..."
-    aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $input $source
+    aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} "$input" "$source"
   elif [[ "$input" =~ s3\.amazonaws\.com ]]; then
     >&2 echo "Downloading $input from S3 over HTTP..."
     update_status status "Downloading $input from S3 over HTTP..."
-    curl -sfL "$input" -o $source
+    curl -sfL "$input" -o "$source"
   elif [[ "$input" =~ ^https?:// && ! "$input" =~ s3\.amazonaws\.com ]]; then
     >&2 echo "Downloading $input..."
     update_status status "Downloading $input..."
-    curl -sfL "$input" -o $source
+    curl -sfL "$input" -o "$source"
   else
-    cp $input $source
+    cp "$input" "$source"
   fi
 
   to_clean+=($source)
@@ -207,7 +207,7 @@ trap cleanup_on_failure ERR
 
 __dirname=$(cd $(dirname "$0"); pwd -P)
 PATH=$__dirname:$PATH
-filename=$(basename $input)
+filename=$(basename "$input")
 base=$(mktemp)
 to_clean+=($base)
 source="${base}.${filename%%\?*}"
