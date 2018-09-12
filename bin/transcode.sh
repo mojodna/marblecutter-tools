@@ -161,8 +161,8 @@ else
 fi
 
 if [[ "$count" -eq 1 ]] && [[ "$(jq -r ".[0]" <<< $colorinterp)" == "palette" ]]; then
-  >&2 echo "Paletted source detected; using nearest resampling by default"
-  resample="${resample:-nearest}"
+  >&2 echo "Paletted source detected; using mode resampling by default"
+  resample="${resample:-mode}"
 else
   resample="${resample:-lanczos}"
 fi
