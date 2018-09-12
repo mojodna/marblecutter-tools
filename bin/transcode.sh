@@ -78,6 +78,7 @@ ext=${input##*.}
 failed=0
 to_clean=()
 unzipped=""
+vrt=""
 
 if [[ "$ext" == "zip" ]]; then
   # assume it's a zipped TIFF
@@ -127,6 +128,8 @@ height=$(jq .height <<< $info)
 width=$(jq .width <<< $info)
 zoom=$(get_zoom.py $input)
 colorinterp=$(jq .colorinterp <<< $info)
+mask_flags=$(jq -c .mask_flags <<< $info)
+nodata=$(jq -r .nodata <<< $info)
 overviews=""
 mask=""
 opts=""
@@ -172,6 +175,19 @@ for b in $(seq 1 $count); do
     bands="$bands -b $b"
   fi
 done
+
+if [ -z "$mask" ] && grep -q nodata <<< $mask_flags; then
+  # no alpha channel mask was found; creating one from NODATA values
+  # without this, NODATA values are preserved but are subject to compression artifacts
+  >&2 echo "Creating an artificial alpha channel for NODATA masks"
+
+  vrt="${input}.vrt"
+  gdalwarp -q -srcnodata $nodata -dstalpha -of VRT $input $vrt
+  input="$vrt"
+  mask="-mask $[count + 1]"
+
+  to_clean+=($input)
+fi
 
 >&2 echo "Transcoding ${count} band(s)..."
 update_status status "Transcoding ${count} band(s)..."
@@ -243,4 +259,4 @@ timeout --foreground 2h gdal_translate \
   --config GDAL_TIFF_OVR_BLOCKSIZE 512 \
   $intermediate $output
 
-rm -f $intermediate $intermediate.msk ${intermediate}.aux.xml $unzipped
+rm -f $intermediate $intermediate.msk ${intermediate}.aux.xml $unzipped $vrt
