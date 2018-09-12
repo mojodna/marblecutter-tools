@@ -284,7 +284,7 @@ rio shapes --collection --mask --as-mask --precision 6 ${small} | \
   build_metadata.py \
     --meta \
       url="\"${output}.tif\"" \
-      filename="\"$(basename $output).tif\"" \
+      filename="\"$(basename "$output").tif\"" \
       dimensions=$(jq -c '.shape | reverse' <<< $info) \
       bands=$(jq -c .count <<< $info) \
       size=$(stat -c %s "${intermediate}" | cut -f1) \
@@ -310,9 +310,9 @@ if [[ "$output" =~ ^s3:// ]]; then
 
   aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $thumb ${output}.png
 else
-  mv $intermediate ${output}.tif
-  mv $footprint ${output}.json
-  mv $thumb ${output}.png
+  mv $intermediate "${output}.tif"
+  mv $footprint "${output}.json"
+  mv $thumb "${output}.png"
 fi
 
 # call web hooks
