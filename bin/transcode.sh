@@ -106,6 +106,9 @@ elif [[ "$input" =~ \.tar$ ]]; then
   fi
 
   input="tar://${input}!${inner_source}"
+elif [[ "$input" =~ \.gz$ ]]; then
+  gzip -d "$input"
+  input="${input%%.gz}"
 fi
 
 trap cleanup_transcode_on_failure INT
