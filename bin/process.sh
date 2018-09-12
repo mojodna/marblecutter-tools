@@ -263,16 +263,25 @@ gdal_translate \
 >&2 echo "Generating footprint..."
 update_status status "Generating footprint..."
 info=$(rio info $intermediate)
+nodata=$(jq -r .nodata <<< $info)
 resolution=$(get_resolution.py $intermediate)
 
 # resample using 'average' so that rescaled pixels containing _some_ values
 # don't end up as NODATA (better than sampling with rio shapes for this reason)
-gdalwarp \
-  -q \
-  -r average \
-  -ts $[$(jq -r .width <<< $info) / 100] $[$(jq -r .height <<< $info) / 100] \
-  -srcnodata $(jq -r .nodata <<< $info) \
-  $intermediate ${intermediate/.tif/_small.tif}
+if [[ "$nodata" = "null" ]]; then
+  gdalwarp \
+    -q \
+    -r average \
+    -ts $[$(jq -r .width <<< $info) / 100] $[$(jq -r .height <<< $info) / 100] \
+    $intermediate ${intermediate/.tif/_small.tif}
+else
+  gdalwarp \
+    -q \
+    -r average \
+    -ts $[$(jq -r .width <<< $info) / 100] $[$(jq -r .height <<< $info) / 100] \
+    -srcnodata $(jq -r .nodata <<< $info) \
+    $intermediate ${intermediate/.tif/_small.tif}
+fi
 
 footprint=${base}.json
 to_clean+=($footprint)
