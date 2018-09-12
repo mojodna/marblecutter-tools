@@ -304,11 +304,11 @@ if [[ "$output" =~ ^s3:// ]]; then
 
   >&2 echo "Uploading..."
   update_status status "Uploading..."
-  aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $intermediate ${output}.tif
+  aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $intermediate "${output}.tif"
 
-  aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $footprint ${output}.json
+  aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $footprint "${output}.json"
 
-  aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $thumb ${output}.png
+  aws s3 cp --endpoint-url ${AWS_S3_ENDPOINT_SCHEME}${AWS_S3_ENDPOINT} $thumb "${output}.png"
 else
   mv $intermediate "${output}.tif"
   mv $footprint "${output}.json"
