@@ -246,14 +246,33 @@ thumb=${base}.png
 to_clean+=($thumb ${thumb}.aux.xml ${thumb}.msk)
 info=$(rio info $intermediate 2> /dev/null)
 count=$(jq .count <<< $info)
+colorinterp=$(jq .colorinterp <<< $info)
+mask_flags=$(jq -c .mask_flags <<< $info)
 height=$(jq .height <<< $info)
 width=$(jq .width <<< $info)
 target_pixel_area=$(bc -l <<< "$THUMBNAIL_SIZE * 1000 / 0.75")
 ratio=$(bc -l <<< "sqrt($target_pixel_area / ($width * $height))")
 target_width=$(printf "%.0f" $(bc -l <<< "$width * $ratio"))
 target_height=$(printf "%.0f" $(bc -l <<< "$height * $ratio"))
+
+bands=""
+for b in $(seq 1 $count); do
+  if [ "$(jq -r ".[$[b - 1]]" <<< $colorinterp)" != "palette" ]; then
+    # skip paletted bands; they'll be expanded using their colormap automatically
+    bands="$bands -b $b"
+  fi
+done
+
+if [ -n "$bands" ] && grep -q per_dataset <<< $mask_flags; then
+  # bands are mapped and a mask is present
+  # no need to fiddle with alpha channels or nodata values as they will have already
+  # been converted into a mask
+  bands="$bands -b mask,1"
+fi
+
 gdal_translate \
   -q \
+  $bands \
   -of png \
   $intermediate \
   $thumb \
