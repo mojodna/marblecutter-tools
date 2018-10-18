@@ -127,7 +127,7 @@ dtype=$(jq -r .dtype <<< $info)
 height=$(jq .height <<< $info)
 width=$(jq .width <<< $info)
 zoom=$(get_zoom.py $input)
-colorinterp=$(jq .colorinterp <<< $info)
+colorinterp=$(jq -c .colorinterp <<< $info)
 mask_flags=$(jq -c .mask_flags <<< $info)
 nodata=$(jq -r .nodata <<< $info)
 overviews=""
@@ -149,7 +149,7 @@ elif [[ $input =~ "tar://" ]]; then
   input=$(sed 's|tar://\(.*\)!\(.*\)|/vsitar/\1/\2|' <<< $input)
 fi
 
-if ( [[ "$count" -eq 3 ]] || [[ "$count" -eq 4 ]] ) && [[ "$dtype" == "uint8" ]]; then
+if ( [[ "$count" -eq 3 ]] || ([[ "$count" -eq 4 ]] && grep -q alpha <<< $colorinterp ) ) && [[ "$dtype" == "uint8" ]]; then
   opts="-co COMPRESS=JPEG -co PHOTOMETRIC=YCbCr"
   overview_opts="--config COMPRESS_OVERVIEW JPEG --config PHOTOMETRIC_OVERVIEW YCbCr"
 elif [[ "$dtype" =~ "float" ]]; then
